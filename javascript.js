@@ -17,7 +17,9 @@ var yearlyWage = 14047;
 var offset = 1190.013;
 
 function update() {
-  document.getElementById('spanToday').innerHTML = "&pound;" + getEarnedToday().toFixed(4);
+  var earnedTodayString = "&pound;" + getEarnedToday().toFixed(4);
+  document.title = earnedTodayString;
+  document.getElementById('spanToday').innerHTML = earnedTodayString;
   document.getElementById('spanTotal').innerHTML = "Total: &pound;" + getEarnedTotal().toFixed(2);
   document.getElementById('spanDays').innerHTML = "Days Worked: " + getBusinessDatesCount(employmentStart, getCurrentDate());
   setTimeout(update, 500);
