@@ -42,6 +42,8 @@ function getEarnedToday() {
     timeWorked = 0;
   else if (time >= 9 && time < 12.5) {
     timeWorked = time - 9;
+  } else if (time >= 12.5 && time < 13.5) {
+    timeWorked = 3.5;
   } else if (time >= 13.5 && time < 17.5) {
     timeWorked = (time - 9) - 1;
   } else timeWorked = 7.5;
