@@ -17,7 +17,7 @@ var yearlyWage = 14047;
 var offset = 1190.013;
 
 function update() {
-  var earnedTodayString = "&pound;" + getEarnedToday().toFixed(4);
+  var earnedTodayString = "£" + getEarnedToday().toFixed(4);
   document.title = earnedTodayString;
   document.getElementById('spanToday').innerHTML = earnedTodayString;
   document.getElementById('spanTotal').innerHTML = "Total: &pound;" + getEarnedTotal().toFixed(2);
