@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Refactored date examples</title>
+
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.0.css">
+  <script src="https://code.jquery.com/qunit/qunit-2.0.0.js"></script>
+  <script src="javascript.js"></script>
+
+  <script>
+    QUnit.test( "business date count", function( assert ) {
+      assert.equal(getBusinessDatesCount(new Date(2016,06,04), new Date(2016,06,04)), 0);
+      assert.equal(getBusinessDatesCount(new Date(2016,06,04), new Date(2016,06,07)), 3);
+      assert.equal(getBusinessDatesCount(new Date(2016,07,26), new Date(2016,07,31)), 2);
+    });
+
+    QUnit.test("days off", function(assert) {
+      // weekends
+      assert.ok(isDayOff(new Date(2016,06,24)));
+      assert.ok(isDayOff(new Date(2017,00,28)));
+
+      // bank holidays
+      assert.ok(isDayOff(new Date(2016,11,26)));
+      assert.ok(isDayOff(new Date(2016,11,27)));
+      assert.ok(isDayOff(new Date(2017,04,01)));
+
+      // non-days off
+      assert.notOk(isDayOff(new Date(2016,06,26)));
+    });
+  </script>
+</head>
+<body>
+
+<div id="qunit"></div>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <link href='http://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'/>
+    <title>Pay Tracker</title>
+    <script src="javascript.js"></script>
+    <style>
+      span {
+        font-size: 20px;
+        font-family: monospace;
+      }
+
+      #spanToday {
+        font-size: 100px;
+      }
+
+      #details {
+        text-align: center;
+        width: 400px;
+        height: 400px;
+
+        position: absolute;
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body onload='update()'>
+    <div id="details">
+      <div>
+        <span id="spanToday"></span>
+      </div>
+      <div>
+        <span id="spanTotal"></span>
+      </div>
+      <div>
+        <span id="spanDays"></span>
+      </div>
+    </div>
+  </body>
+</html>
