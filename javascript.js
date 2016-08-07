@@ -1,15 +1,15 @@
 var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11,27),
-                    new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
-                    new Date(2017,04,01), new Date(2017,04,29)];
+    new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
+    new Date(2017,04,01), new Date(2017,04,29)];
 var assignedHolidays = [new Date(2016,11,13), new Date(2016,11,14), new Date(2016,11,15),
-                        new Date(2016,11,15), new Date(2016,11,19), new Date(2016,11,20),
-                        new Date(2016,11,21), new Date(2016,11,22), new Date(2016,11,23),
-                        new Date(2016,11,28), new Date(2016,11,29), new Date(2016,11,30),
-                        new Date(2017,05,15), new Date(2017,05,16), new Date(2017,05,19),
-                        new Date(2017,05,20), new Date(2017,05,21), new Date(2017,05,22),
-                        new Date(2017,05,23), new Date(2017,05,26), new Date(2017,05,27),
-                        new Date(2017,05,28), new Date(2017,05,29), new Date(2017,05,30),
-                        new Date(2017,06,03)];
+    new Date(2016,11,15), new Date(2016,11,19), new Date(2016,11,20),
+    new Date(2016,11,21), new Date(2016,11,22), new Date(2016,11,23),
+    new Date(2016,11,28), new Date(2016,11,29), new Date(2016,11,30),
+    new Date(2017,05,15), new Date(2017,05,16), new Date(2017,05,19),
+    new Date(2017,05,20), new Date(2017,05,21), new Date(2017,05,22),
+    new Date(2017,05,23), new Date(2017,05,26), new Date(2017,05,27),
+    new Date(2017,05,28), new Date(2017,05,29), new Date(2017,05,30),
+    new Date(2017,06,03)];
 var employmentStart = new Date(2016,06,04);
 var employmentEnd = new Date(2017,06,03);
 var employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
@@ -17,11 +17,14 @@ var yearlyWage = 14047;
 var offset = 1190.013;
 
 function update() {
-  var earnedTodayString = "£" + getEarnedToday().toFixed(4);
+  var earnedTodayString = "&pound;" + getEarnedToday().toFixed(4);
   document.title = earnedTodayString;
   document.getElementById('spanToday').innerHTML = earnedTodayString;
   document.getElementById('spanTotal').innerHTML = "Total: &pound;" + getEarnedTotal().toFixed(2);
-  document.getElementById('spanDays').innerHTML = "Days Worked: " + getBusinessDatesCount(employmentStart, getCurrentDate());
+  document.getElementById('spanDays').innerHTML = "Days Worked: " 
+    + getBusinessDatesCount(employmentStart, getCurrentDate())
+    + " / "
+    + employmentDayTotal;
   setTimeout(update, 500);
 }
 
@@ -79,7 +82,7 @@ function getBusinessDatesCount(startDate, endDate) {
 function isDayOff(date) {
   var containsDate = (pre, cur) => pre || areEqual(date, cur);
   return date.getDay() == 0 || date.getDay() == 6
-      || bankHolidays.reduce(containsDate, false) || assignedHolidays.reduce(containsDate, false);
+    || bankHolidays.reduce(containsDate, false) || assignedHolidays.reduce(containsDate, false);
 }
 
 function areEqual(date1, date2) {
