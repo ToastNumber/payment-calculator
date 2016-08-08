@@ -20,11 +20,11 @@ function update() {
   var earnedTodayString = getEarnedToday().toFixed(4);
   document.title = "£" + earnedTodayString;
   document.getElementById('spanToday').innerHTML = "£" + earnedTodayString;
-  document.getElementById('spanTotal').innerHTML = "Total: &pound;" + getEarnedTotal().toFixed(2);
-  document.getElementById('spanDays').innerHTML = "Days Worked: " 
-    + getBusinessDatesCount(employmentStart, getCurrentDate())
-    + " / "
-    + employmentDayTotal;
+  document.getElementById('spanTotal').innerHTML = "£" + getEarnedTotal().toFixed(2);
+  document.getElementById('spanTotalLeft').innerHTML = "(" + "£" + (yearlyWage - getEarnedTotal()).toFixed(2) + " remaining)";
+  document.getElementById('spanDays').innerHTML = getBusinessDatesCount(employmentStart, getCurrentDate())
+  document.getElementById('spanYearDays').innerHTML = "(" + employmentDayTotal + " remaining)";
+
   setTimeout(update, 500);
 }
 
