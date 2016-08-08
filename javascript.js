@@ -1,26 +1,23 @@
 var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11,27),
     new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
     new Date(2017,04,01), new Date(2017,04,29)];
-var assignedHolidays = [new Date(2016,11,13), new Date(2016,11,14), new Date(2016,11,15),
-    new Date(2016,11,15), new Date(2016,11,19), new Date(2016,11,20),
-    new Date(2016,11,21), new Date(2016,11,22), new Date(2016,11,23),
-    new Date(2016,11,28), new Date(2016,11,29), new Date(2016,11,30),
-    new Date(2017,05,15), new Date(2017,05,16), new Date(2017,05,19),
-    new Date(2017,05,20), new Date(2017,05,21), new Date(2017,05,22),
-    new Date(2017,05,23), new Date(2017,05,26), new Date(2017,05,27),
-    new Date(2017,05,28), new Date(2017,05,29), new Date(2017,05,30),
-    new Date(2017,06,03)];
+var assignedHolidays = [];
 var employmentStart = new Date(2016,06,04);
 var employmentEnd = new Date(2017,06,03);
 var employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
 var yearlyWage = 14047;
 var offset = 1190.013;
 
+function init() {
+  populateSettingsFields();
+  update();
+}
+
 function update() {
   var earnedToday = getEarnedToday();
   var earnedTotal = getEarnedTotal();
   var daysWorked = getBusinessDatesCount(employmentStart, getCurrentDate());
- 
+
   document.title = "£" + numberWithCommas(earnedToday.toFixed(2));
   document.getElementById('spanToday').innerHTML = "£" + numberWithCommas(earnedToday.toFixed(4));
   document.getElementById('spanTotal').innerHTML = "£" + numberWithCommas(earnedTotal.toFixed(2));
@@ -29,6 +26,54 @@ function update() {
   document.getElementById('spanDaysLeft').innerHTML = "(" + (employmentDayTotal - daysWorked) + " remaining)";
 
   setTimeout(update, 500);
+}
+
+function populateSettingsFields() {
+  var holidays = getCookie("holidays");
+  if (holidays !== null) {
+    document.getElementById("txtHolidays").value = holidays.split(",").map(s => s.trim()).join(", ");
+  }
+}
+
+function saveSettings() {
+  var holidays = document.getElementById("txtHolidays").value;
+  if (validateDate()) {
+    setCookie("holidays", holidays);
+
+    assignedDates = holidays.split(",")
+      .map(s => s.trim())
+      .map(
+          function(date) {
+            var parts = date.split("/");
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+          }
+      );
+  }
+}
+
+function validateDate() {
+  var txtHolidays = document.getElementById("txtHolidays");
+
+  var matches = /^(\s*\d\d\/\d\d\/\d\d\d\d(,\s*\d\d\/\d\d\/\d\d\d\d\s*)*)?$/.test(txtHolidays.value);
+  txtHolidays.style.backgroundColor = matches ? "white" : "pink";
+
+  return matches;
+}
+
+function setCookie(name, value) {
+  if (window.localStorage !== undefined) {
+    window.localStorage.setItem(name, value);
+  } else {
+    console.log("localStorage is undefined, so cookie cannot be set");
+  }
+}
+
+function getCookie(name) {
+  if (window.localStorage !== undefined) {
+    return window.localStorage.getItem(name);
+  } else {
+    return null;
+  }
 }
 
 /* Thanks to http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript */
