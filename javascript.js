@@ -1,7 +1,6 @@
 var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11,27),
     new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
     new Date(2017,04,01), new Date(2017,04,29)];
-
 var assignedHolidays = [];
 var employmentStart;
 var employmentEnd;
