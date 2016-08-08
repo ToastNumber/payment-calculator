@@ -1,33 +1,141 @@
 var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11,27),
     new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
     new Date(2017,04,01), new Date(2017,04,29)];
-var assignedHolidays = [new Date(2016,11,13), new Date(2016,11,14), new Date(2016,11,15),
-    new Date(2016,11,15), new Date(2016,11,19), new Date(2016,11,20),
-    new Date(2016,11,21), new Date(2016,11,22), new Date(2016,11,23),
-    new Date(2016,11,28), new Date(2016,11,29), new Date(2016,11,30),
-    new Date(2017,05,15), new Date(2017,05,16), new Date(2017,05,19),
-    new Date(2017,05,20), new Date(2017,05,21), new Date(2017,05,22),
-    new Date(2017,05,23), new Date(2017,05,26), new Date(2017,05,27),
-    new Date(2017,05,28), new Date(2017,05,29), new Date(2017,05,30),
-    new Date(2017,06,03)];
-var employmentStart = new Date(2016,06,04);
-var employmentEnd = new Date(2017,06,03);
-var employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
-var yearlyWage = 14047;
+var assignedHolidays = [];
+var employmentStart;
+var employmentEnd;
+var employmentDayTotal;
+var yearlyWage;
 var offset = 1190.013;
 
-function update() {
-  var earnedTodayString = "&pound;" + getEarnedToday().toFixed(4);
-  document.title = earnedTodayString;
-  document.getElementById('spanToday').innerHTML = earnedTodayString;
-  document.getElementById('spanTotal').innerHTML = "Total: &pound;" + getEarnedTotal().toFixed(2);
-  document.getElementById('spanDays').innerHTML = "Days Worked: " 
-    + getBusinessDatesCount(employmentStart, getCurrentDate())
-    + " / "
-    + employmentDayTotal;
-  setTimeout(update, 500);
+function init() {
+  populateSettingsFields();
+  saveSettings();
+  update();
 }
 
+function update() {
+  setTimeout(update, 500);
+  
+  if (!validateInputs()) return;
+
+  var earnedToday = getEarnedToday();
+  var earnedTotal = getEarnedTotal();
+  var daysWorked = getBusinessDatesCount(employmentStart, getCurrentDate());
+
+  document.title = "£" + numberWithCommas(earnedToday.toFixed(2));
+  document.getElementById('spanToday').innerHTML = "£" + numberWithCommas(earnedToday.toFixed(4));
+  document.getElementById('spanTotal').innerHTML = "£" + numberWithCommas(earnedTotal.toFixed(2));
+  document.getElementById('spanTotalLeft').innerHTML = "(" + "£" + numberWithCommas((yearlyWage - earnedTotal).toFixed(2)) + " remaining)";
+  document.getElementById('spanDays').innerHTML = daysWorked;
+  document.getElementById('spanDaysLeft').innerHTML = "(" + (employmentDayTotal - daysWorked) + " remaining)";
+
+}
+
+function populateSettingsFields() {
+  var holidays = getCookie("holidays");
+  if (holidays !== null) {
+    document.getElementById("txtHolidays").value = holidays.split(",").map(s => s.trim()).join(", ");
+  }
+
+  var startDate = getCookie("employmentStartDate");
+  if (startDate !== null) {
+    document.getElementById("inputStartDate").value = startDate;
+  }
+
+  var endDate = getCookie("employmentEndDate");
+  if (endDate !== null) {
+    document.getElementById("inputEndDate").value = endDate;
+  }
+
+  var wage = getCookie("wage");
+  if (endDate !== null) {
+    document.getElementById("inputWage").value = wage;
+  }
+}
+
+function saveSettings() {
+  if (validateInputs()) {
+    var holidays = document.getElementById("txtHolidays").value;
+    setCookie("holidays", holidays);
+
+    assignedHolidays = holidays == "" 
+      ? []
+      : holidays.split(",")
+      .map(s => s.trim())
+      .map(
+          function(date) {
+            var parts = date.split("/");
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+          }
+      );
+
+    var startDate = document.getElementById("inputStartDate").value;
+    setCookie("employmentStartDate", startDate);
+    var parts = startDate.split("/");
+    this.employmentStart = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var endDate = document.getElementById("inputEndDate").value;
+    setCookie("employmentEndDate", endDate);
+    var parts = endDate.split("/");
+    this.employmentEnd = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var wage = document.getElementById("inputWage").value;
+    setCookie("wage", wage);
+    this.yearlyWage = wage;
+
+    this.employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
+  }
+}
+
+function validateInputs() {
+  var matches = true;
+
+  var txtHolidays = document.getElementById("txtHolidays");
+  var check = /^(\s*\d\d\/\d\d\/\d\d\d\d(,\s*\d\d\/\d\d\/\d\d\d\d\s*)*)?$/.test(txtHolidays.value);
+  txtHolidays.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputStartDate = document.getElementById("inputStartDate");
+  check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputStartDate.value);
+  inputStartDate.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputEndDate = document.getElementById("inputEndDate");
+  check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputEndDate.value);
+  inputEndDate.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputWage = document.getElementById("inputWage");
+  check = /^\s*\d+(\.\d+)?$/.test(inputWage.value);
+  inputWage.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  return matches;
+}
+
+function setCookie(name, value) {
+  if (window.localStorage !== undefined) {
+    window.localStorage.setItem(name, value);
+  } else {
+    console.log("localStorage is undefined, so cookie cannot be set");
+  }
+}
+
+function getCookie(name) {
+  if (window.localStorage !== undefined) {
+    return window.localStorage.getItem(name);
+  } else {
+    return null;
+  }
+}
+
+/* Thanks to http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript */
+function numberWithCommas(x) {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 function getEarnedTotal() {
   return getEarnedUntilToday() + getEarnedToday();
 }
@@ -35,7 +143,7 @@ function getEarnedTotal() {
 function getEarnedToday() {
   var currentDate = getCurrentDate();
 
-  if (isDayOff(currentDate)) return 0;
+  if (isDayOff(currentDate) || currentDate >= employmentEnd) return 0;
 
   var daysLeftInYear = getBusinessDatesCount(getCurrentDate(), employmentEnd);
   var amountLeftToEarn = yearlyWage - getEarnedUntilToday();
@@ -61,7 +169,12 @@ function getEarnedUntilToday() {
 }
 
 function getCurrentDate() {
-  return new Date();
+  var now = new Date();
+  if (now > employmentEnd) {
+    return employmentEnd;
+  } else {
+    return now;
+  }
 }
 
 function getBusinessDatesCount(startDate, endDate) {

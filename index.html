@@ -1,22 +1,33 @@
 <html>
   <head>
     <link href='http://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'/>
+    <meta charset="utf-8" /> 
+
     <title>Pay Tracker</title>
     <script src="javascript.js"></script>
     <style>
-      span {
-        font-size: 20px;
+      #detailTable {
+        font-size: 14px;
         font-family: monospace;
+
+        margin: 0 auto;
+      }
+
+      #settingsTable {
+        font-size: 14px;
+        font-family: helvetica;
+        margin: 0 auto;
       }
 
       #spanToday {
         font-size: 100px;
+        font-family: monospace;
       }
 
       #details {
         text-align: center;
-        width: 400px;
-        height: 400px;
+        width: 600px;
+        height: 500px;
 
         position: absolute;
         top:0;
@@ -25,19 +36,75 @@
         right: 0;
 
         margin: auto;
+
+        max-width: 100%;
+        max-height: 100%;
+        overflow: auto;
       }
+
+      label {
+        font-family: helvetica;
+        font-size: 14px;
+      }
+
+      td {
+        padding: 0 15px 0 15px;
+      }
+
+      #settings {
+        padding-top: 50px;
+      }
+
+      #holidays {
+        padding-top: 20px;
+      }
+
+      #holidays * {
+        vertical-align: middle;
+      }
+
+
     </style>
   </head>
-  <body onload='update()'>
+  <body onload='init();'>
     <div id="details">
       <div>
         <span id="spanToday"></span>
       </div>
-      <div>
-        <span id="spanTotal"></span>
-      </div>
-      <div>
-        <span id="spanDays"></span>
+      <table id="detailTable">
+        <tr>
+          <td>Total:</td>
+          <td><span id="spanTotal"></span></td>
+          <td><span id="spanTotalLeft"></span></td>
+        </tr>
+        <tr>
+          <td>Days Worked:</td>
+          <td><span id="spanDays"></span></td>
+          <td><span id="spanDaysLeft"></span></td>
+        </tr>
+      </table>
+      <div id="settings">
+        <table id="settingsTable">
+          <tr>
+            <td>Employment start date:</td>
+            <td><input type="text" id="inputStartDate" onchange='saveSettings();' onkeyup='saveSettings();'></td>
+          </tr>
+          <tr>
+            <td>Employment end date:</td>
+            <td><input type="text" id="inputEndDate" onchange='saveSettings();' onkeyup='saveSettings();'></td>
+          </tr>
+          <tr>
+            <td>Wage (after tax):</td>
+            <td><input type="text" id="inputWage" onchange='saveSettings();' onkeyup='saveSettings();'></td>
+          </tr>
+        </table>
+
+        <div id="holidays">
+          <label for="txtHolidays">Holidays</label>
+          <textarea onkeyup='saveSettings();' onchange='saveSettings();' rows="9" cols="40" id="txtHolidays" placeholder="Example: 13/11/2016, 14/11/2016">
+  13/11/2016, 14/11/2016, 15/11/2016, 15/11/2016, 19/11/2016, 20/11/2016, 21/11/2016, 22/11/2016, 23/11/2016, 28/11/2016, 29/11/2016, 30/11/2016, 15/05/2017, 16/05/2017, 19/05/2017, 20/05/2017, 21/05/2017, 22/05/2017, 23/05/2017, 26/05/2017, 27/05/2017, 28/05/2017, 29/05/2017, 30/05/2017, 03/06/2017
+          </textarea>
+        </div>
       </div>
     </div>
   </body>
