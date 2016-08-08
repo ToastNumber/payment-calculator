@@ -2,11 +2,12 @@ var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11
     new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
     new Date(2017,04,01), new Date(2017,04,29)];
 var assignedHolidays = [];
+var calculationStart;
 var employmentStart;
 var employmentEnd;
 var employmentDayTotal;
 var yearlyWage;
-var offset = 1190.013;
+var offset;
 
 function init() {
   populateSettingsFields();
@@ -38,9 +39,14 @@ function populateSettingsFields() {
     document.getElementById("txtHolidays").value = holidays.split(",").map(s => s.trim()).join(", ");
   }
 
-  var startDate = getCookie("employmentStartDate");
+  var startDate = getCookie("employmentStart");
   if (startDate !== null) {
     document.getElementById("inputStartDate").value = startDate;
+  }
+
+  var calcStartDate = getCookie("calculationStart");
+  if (calcStartDate !== null) {
+    document.getElementById("inputCalcStartDate").value = calcStartDate;
   }
 
   var endDate = getCookie("employmentEndDate");
@@ -51,6 +57,11 @@ function populateSettingsFields() {
   var wage = getCookie("wage");
   if (endDate !== null) {
     document.getElementById("inputWage").value = wage;
+  }
+
+  var alreadyEarned = getCookie("alreadyEarned");
+  if (alreadyEarned !== null) {
+    document.getElementById("inputAlreadyEarned").value = alreadyEarned;
   }
 }
 
@@ -71,9 +82,14 @@ function saveSettings() {
       );
 
     var startDate = document.getElementById("inputStartDate").value;
-    setCookie("employmentStartDate", startDate);
+    setCookie("employmentStart", startDate);
     var parts = startDate.split("/");
     this.employmentStart = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var calcStartDate = document.getElementById("inputCalcStartDate").value;
+    setCookie("calculationStart", calcStartDate);
+    var parts = calcStartDate.split("/");
+    this.calculationStart = new Date(parts[2], parts[1] - 1, parts[0]);
 
     var endDate = document.getElementById("inputEndDate").value;
     setCookie("employmentEndDate", endDate);
@@ -82,7 +98,11 @@ function saveSettings() {
 
     var wage = document.getElementById("inputWage").value;
     setCookie("wage", wage);
-    this.yearlyWage = wage;
+    this.yearlyWage = parseFloat(wage);
+
+    var alreadyEarned = document.getElementById("inputAlreadyEarned").value;
+    setCookie("alreadyEarned", alreadyEarned);
+    this.offset = parseFloat(alreadyEarned);
 
     this.employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
   }
@@ -101,6 +121,11 @@ function validateInputs() {
   inputStartDate.style.backgroundColor = check ? "white" : "pink";
   matches = matches && check;
 
+  var inputCalcStartDate = document.getElementById("inputCalcStartDate");
+  check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputCalcStartDate.value);
+  inputCalcStartDate.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
   var inputEndDate = document.getElementById("inputEndDate");
   check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputEndDate.value);
   inputEndDate.style.backgroundColor = check ? "white" : "pink";
@@ -109,6 +134,11 @@ function validateInputs() {
   var inputWage = document.getElementById("inputWage");
   check = /^\s*\d+(\.\d+)?$/.test(inputWage.value);
   inputWage.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputAlreadyEarned = document.getElementById("inputAlreadyEarned");
+  check = /^\s*\d+(\.\d+)?$/.test(inputAlreadyEarned.value);
+  inputAlreadyEarned.style.backgroundColor = check ? "white" : "pink";
   matches = matches && check;
 
   return matches;
@@ -165,7 +195,7 @@ function getEarnedToday() {
 }
 
 function getEarnedUntilToday() {
-  return offset + (getBusinessDatesCount(employmentStart, getCurrentDate()) / employmentDayTotal) * (yearlyWage - offset);
+  return offset + (getBusinessDatesCount(calculationStart, getCurrentDate()) / employmentDayTotal) * (yearlyWage - offset);
 }
 
 function getCurrentDate() {
