@@ -17,17 +17,26 @@ var yearlyWage = 14047;
 var offset = 1190.013;
 
 function update() {
-  var earnedTodayString = getEarnedToday().toFixed(4);
-  document.title = "£" + earnedTodayString;
-  document.getElementById('spanToday').innerHTML = "£" + earnedTodayString;
-  document.getElementById('spanTotal').innerHTML = "£" + getEarnedTotal().toFixed(2);
-  document.getElementById('spanTotalLeft').innerHTML = "(" + "£" + (yearlyWage - getEarnedTotal()).toFixed(2) + " remaining)";
-  document.getElementById('spanDays').innerHTML = getBusinessDatesCount(employmentStart, getCurrentDate())
-  document.getElementById('spanYearDays').innerHTML = "(" + employmentDayTotal + " remaining)";
+  var earnedToday = getEarnedToday();
+  var earnedTotal = getEarnedTotal();
+  var daysWorked = getBusinessDatesCount(employmentStart, getCurrentDate());
+ 
+  document.title = "£" + numberWithCommas(earnedToday.toFixed(2));
+  document.getElementById('spanToday').innerHTML = "£" + numberWithCommas(earnedToday.toFixed(4));
+  document.getElementById('spanTotal').innerHTML = "£" + numberWithCommas(earnedTotal.toFixed(2));
+  document.getElementById('spanTotalLeft').innerHTML = "(" + "£" + numberWithCommas((yearlyWage - earnedTotal).toFixed(2)) + " remaining)";
+  document.getElementById('spanDays').innerHTML = daysWorked;
+  document.getElementById('spanDaysLeft').innerHTML = "(" + (employmentDayTotal - daysWorked) + " remaining)";
 
   setTimeout(update, 500);
 }
 
+/* Thanks to http://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript */
+function numberWithCommas(x) {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 function getEarnedTotal() {
   return getEarnedUntilToday() + getEarnedToday();
 }
