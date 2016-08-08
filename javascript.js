@@ -1,19 +1,25 @@
 var bankHolidays = [new Date(2016,07,29), new Date(2016,11,26), new Date(2016,11,27),
     new Date(2017,00,02), new Date(2017,03,14), new Date(2017,03,17),
     new Date(2017,04,01), new Date(2017,04,29)];
+
 var assignedHolidays = [];
-var employmentStart = new Date(2016,06,04);
-var employmentEnd = new Date(2017,06,03);
-var employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
-var yearlyWage = 14047;
+var employmentStart;
+var employmentEnd;
+var employmentDayTotal;
+var yearlyWage;
 var offset = 1190.013;
 
 function init() {
   populateSettingsFields();
+  saveSettings();
   update();
 }
 
 function update() {
+  setTimeout(update, 500);
+  
+  if (!validateInputs()) return;
+
   var earnedToday = getEarnedToday();
   var earnedTotal = getEarnedTotal();
   var daysWorked = getBusinessDatesCount(employmentStart, getCurrentDate());
@@ -25,7 +31,6 @@ function update() {
   document.getElementById('spanDays').innerHTML = daysWorked;
   document.getElementById('spanDaysLeft').innerHTML = "(" + (employmentDayTotal - daysWorked) + " remaining)";
 
-  setTimeout(update, 500);
 }
 
 function populateSettingsFields() {
@@ -33,14 +38,31 @@ function populateSettingsFields() {
   if (holidays !== null) {
     document.getElementById("txtHolidays").value = holidays.split(",").map(s => s.trim()).join(", ");
   }
+
+  var startDate = getCookie("employmentStartDate");
+  if (startDate !== null) {
+    document.getElementById("inputStartDate").value = startDate;
+  }
+
+  var endDate = getCookie("employmentEndDate");
+  if (endDate !== null) {
+    document.getElementById("inputEndDate").value = endDate;
+  }
+
+  var wage = getCookie("wage");
+  if (endDate !== null) {
+    document.getElementById("inputWage").value = wage;
+  }
 }
 
 function saveSettings() {
-  var holidays = document.getElementById("txtHolidays").value;
-  if (validateDate()) {
+  if (validateInputs()) {
+    var holidays = document.getElementById("txtHolidays").value;
     setCookie("holidays", holidays);
 
-    assignedDates = holidays.split(",")
+    assignedHolidays = holidays == "" 
+      ? []
+      : holidays.split(",")
       .map(s => s.trim())
       .map(
           function(date) {
@@ -48,14 +70,47 @@ function saveSettings() {
             return new Date(parts[2], parts[1] - 1, parts[0]);
           }
       );
+
+    var startDate = document.getElementById("inputStartDate").value;
+    setCookie("employmentStartDate", startDate);
+    var parts = startDate.split("/");
+    this.employmentStart = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var endDate = document.getElementById("inputEndDate").value;
+    setCookie("employmentEndDate", endDate);
+    var parts = endDate.split("/");
+    this.employmentEnd = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    var wage = document.getElementById("inputWage").value;
+    setCookie("wage", wage);
+    this.yearlyWage = wage;
+
+    this.employmentDayTotal = getBusinessDatesCount(employmentStart, employmentEnd);
   }
 }
 
-function validateDate() {
-  var txtHolidays = document.getElementById("txtHolidays");
+function validateInputs() {
+  var matches = true;
 
-  var matches = /^(\s*\d\d\/\d\d\/\d\d\d\d(,\s*\d\d\/\d\d\/\d\d\d\d\s*)*)?$/.test(txtHolidays.value);
-  txtHolidays.style.backgroundColor = matches ? "white" : "pink";
+  var txtHolidays = document.getElementById("txtHolidays");
+  var check = /^(\s*\d\d\/\d\d\/\d\d\d\d(,\s*\d\d\/\d\d\/\d\d\d\d\s*)*)?$/.test(txtHolidays.value);
+  txtHolidays.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputStartDate = document.getElementById("inputStartDate");
+  check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputStartDate.value);
+  inputStartDate.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputEndDate = document.getElementById("inputEndDate");
+  check = /^\s*\d\d\/\d\d\/\d\d\d\d\s*$/.test(inputEndDate.value);
+  inputEndDate.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
+
+  var inputWage = document.getElementById("inputWage");
+  check = /^\s*\d+(\.\d+)?$/.test(inputWage.value);
+  inputWage.style.backgroundColor = check ? "white" : "pink";
+  matches = matches && check;
 
   return matches;
 }
@@ -89,7 +144,7 @@ function getEarnedTotal() {
 function getEarnedToday() {
   var currentDate = getCurrentDate();
 
-  if (isDayOff(currentDate)) return 0;
+  if (isDayOff(currentDate) || currentDate >= employmentEnd) return 0;
 
   var daysLeftInYear = getBusinessDatesCount(getCurrentDate(), employmentEnd);
   var amountLeftToEarn = yearlyWage - getEarnedUntilToday();
@@ -115,7 +170,12 @@ function getEarnedUntilToday() {
 }
 
 function getCurrentDate() {
-  return new Date();
+  var now = new Date();
+  if (now > employmentEnd) {
+    return employmentEnd;
+  } else {
+    return now;
+  }
 }
 
 function getBusinessDatesCount(startDate, endDate) {
