@@ -63,12 +63,19 @@
         vertical-align: middle;
       }
 
-
+      #mainDisplay {
+        background-color: #9a9a9a;
+        border-radius: 8px;
+        box-shadow: 0px 1px 5px #000;
+        margin: 0px 0px 15px 0px;
+        color: #FFF;
+        text-shadow: 1px 1px 1px #000; 
+      }
     </style>
   </head>
   <body onload='init();'>
     <div id="details">
-      <div>
+      <div id="mainDisplay">
         <span id="spanToday"></span>
       </div>
       <table id="detailTable">
